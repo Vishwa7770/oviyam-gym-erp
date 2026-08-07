@@ -1,0 +1,16 @@
+node_modules/
+dist/
+.env
+*.db
+*.db-journal
+.gemini/
+.agents/
+.git/
+*.log
+.system_generated/
+build/
+out/
+bin/
+tmp/
+scratch/
+oviyam_offline_license.lic

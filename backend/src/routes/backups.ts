@@ -13,7 +13,7 @@ const dbDir = path.join(process.cwd(), 'data');
 const backupsDir = path.join(dbDir, 'backups');
 
 // Ensure backups folder exists
-if (!fs.existsSync(backupsDir)) {
+if (!isPostgres && !fs.existsSync(backupsDir)) {
   fs.mkdirSync(backupsDir, { recursive: true });
 }
 

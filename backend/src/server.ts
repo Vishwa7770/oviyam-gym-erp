@@ -123,4 +123,23 @@ async function startServer() {
   }
 }
 
-startServer();
+// Support serverless lazy database initialization on Vercel
+let dbInitialized = false;
+app.use(async (req, res, next) => {
+  if (process.env.VERCEL && !dbInitialized) {
+    try {
+      await initDatabase();
+      await seedDefaultAdmin();
+      dbInitialized = true;
+    } catch (err) {
+      console.error('Lazy Serverless DB Init Failed:', err);
+    }
+  }
+  next();
+});
+
+if (!process.env.VERCEL) {
+  startServer();
+}
+
+export default app;

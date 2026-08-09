@@ -35,7 +35,7 @@ interface GymContextType {
 
 const GymContext = createContext<GymContextType | undefined>(undefined);
 
-export const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:5000/api';
+export const API_BASE = import.meta.env.VITE_API_BASE || (typeof window !== 'undefined' && window.location.origin.includes('localhost') ? 'http://localhost:5000/api' : '/api');
 
 export const GymProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [settings, setSettings] = useState<GymSettings>({

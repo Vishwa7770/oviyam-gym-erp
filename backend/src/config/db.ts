@@ -427,6 +427,60 @@ async function createTables() {
       );
     `);
 
+
+
+    await query(`
+      CREATE TABLE IF NOT EXISTS trainers (
+        id SERIAL PRIMARY KEY,
+        trainer_id VARCHAR(50) UNIQUE NOT NULL,
+        full_name VARCHAR(100) NOT NULL,
+        mobile_number VARCHAR(20) UNIQUE NOT NULL,
+        email VARCHAR(100) UNIQUE NOT NULL,
+        gender VARCHAR(20) NOT NULL,
+        experience INT NOT NULL,
+        specialization VARCHAR(150) NOT NULL,
+        qualification VARCHAR(150) NOT NULL,
+        joining_date VARCHAR(20) NOT NULL,
+        salary NUMERIC(10,2) DEFAULT NULL,
+        status VARCHAR(20) NOT NULL DEFAULT 'Active',
+        profile_photo TEXT DEFAULT '',
+        password_hash VARCHAR(255) NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
+    await query(`
+      CREATE TABLE IF NOT EXISTS notifications (
+        id SERIAL PRIMARY KEY,
+        type VARCHAR(50) NOT NULL,
+        message TEXT NOT NULL,
+        is_read INT DEFAULT 0,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
+    await query(`
+      CREATE TABLE IF NOT EXISTS activity_logs (
+        id SERIAL PRIMARY KEY,
+        recorded_date VARCHAR(20) NOT NULL,
+        recorded_time VARCHAR(20) NOT NULL,
+        user_identity VARCHAR(100) NOT NULL,
+        action TEXT NOT NULL,
+        module VARCHAR(50) NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
+    await query(`
+      CREATE TABLE IF NOT EXISTS backup_metadata (
+        id SERIAL PRIMARY KEY,
+        file_path TEXT NOT NULL,
+        size INT NOT NULL,
+        status VARCHAR(20) NOT NULL DEFAULT 'Success',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
     // Migrate PG columns if they do not exist
     const pgCols = [
       { name: 'chest', type: 'NUMERIC(5,2) DEFAULT 0' },
@@ -504,57 +558,6 @@ async function createTables() {
     await query(`CREATE INDEX IF NOT EXISTS idx_members_name ON members(full_name)`);
     await query(`CREATE INDEX IF NOT EXISTS idx_payments_invoice ON payments(invoice_number)`);
 
-    await query(`
-      CREATE TABLE IF NOT EXISTS trainers (
-        id SERIAL PRIMARY KEY,
-        trainer_id VARCHAR(50) UNIQUE NOT NULL,
-        full_name VARCHAR(100) NOT NULL,
-        mobile_number VARCHAR(20) UNIQUE NOT NULL,
-        email VARCHAR(100) UNIQUE NOT NULL,
-        gender VARCHAR(20) NOT NULL,
-        experience INT NOT NULL,
-        specialization VARCHAR(150) NOT NULL,
-        qualification VARCHAR(150) NOT NULL,
-        joining_date VARCHAR(20) NOT NULL,
-        salary NUMERIC(10,2) DEFAULT NULL,
-        status VARCHAR(20) NOT NULL DEFAULT 'Active',
-        profile_photo TEXT DEFAULT '',
-        password_hash VARCHAR(255) NOT NULL,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      );
-    `);
-
-    await query(`
-      CREATE TABLE IF NOT EXISTS notifications (
-        id SERIAL PRIMARY KEY,
-        type VARCHAR(50) NOT NULL,
-        message TEXT NOT NULL,
-        is_read INT DEFAULT 0,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      );
-    `);
-
-    await query(`
-      CREATE TABLE IF NOT EXISTS activity_logs (
-        id SERIAL PRIMARY KEY,
-        recorded_date VARCHAR(20) NOT NULL,
-        recorded_time VARCHAR(20) NOT NULL,
-        user_identity VARCHAR(100) NOT NULL,
-        action TEXT NOT NULL,
-        module VARCHAR(50) NOT NULL,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      );
-    `);
-
-    await query(`
-      CREATE TABLE IF NOT EXISTS backup_metadata (
-        id SERIAL PRIMARY KEY,
-        file_path TEXT NOT NULL,
-        size INT NOT NULL,
-        status VARCHAR(20) NOT NULL DEFAULT 'Success',
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      );
-    `);
   } else {
     // SQLite Table Creation (Use inline statement runs)
     await query(`

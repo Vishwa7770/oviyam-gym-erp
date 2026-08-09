@@ -33,6 +33,21 @@ app.use(cors());
 app.use(express.json({ limit: '10mb' })); // Support base64 image uploads for gym logo
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
+// Support serverless lazy database initialization on Vercel
+let dbInitialized = false;
+app.use(async (req, res, next) => {
+  if (!dbInitialized) {
+    try {
+      await initDatabase();
+      await seedDefaultAdmin();
+      dbInitialized = true;
+    } catch (err) {
+      console.error('Lazy Database Init Failed:', err);
+    }
+  }
+  next();
+});
+
 // Health Check API
 app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', timestamp: new Date() });
@@ -110,6 +125,8 @@ async function startServer() {
     
     // Seed default admin
     await seedDefaultAdmin();
+    
+    dbInitialized = true;
 
     app.listen(PORT, () => {
       console.log(`================================================`);
@@ -122,21 +139,6 @@ async function startServer() {
     process.exit(1);
   }
 }
-
-// Support serverless lazy database initialization on Vercel
-let dbInitialized = false;
-app.use(async (req, res, next) => {
-  if (process.env.VERCEL && !dbInitialized) {
-    try {
-      await initDatabase();
-      await seedDefaultAdmin();
-      dbInitialized = true;
-    } catch (err) {
-      console.error('Lazy Serverless DB Init Failed:', err);
-    }
-  }
-  next();
-});
 
 if (!process.env.VERCEL) {
   startServer();
